@@ -1,0 +1,43 @@
+@()
+
+@main("Server-Sent Events sample for Play Framework") {
+<div class="container">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Play-SSE</a>
+      </div>
+    </div>
+  </nav>
+
+  <h1>Server-Sent Events sample for Play Framework</h1>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Source.actorRef()</div>
+    <div class="panel-body">
+      <a class="btn btn-success" role="button" href="@routes.ActorRefController.index().url">Go to sample page »</a>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Source.actorPublisher()</div>
+    <div class="panel-body">
+      <a class="btn btn-success" role="button" href="@routes.PubSubController.index().url">Go to sample page »</a>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Source.fromGraph()</div>
+    <div class="panel-body">
+      <a class="btn btn-success" role="button" href="@routes.GraphStageController.index().url">Go to sample page »</a>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">MergeHub & BroadcastHub</div>
+    <div class="panel-body">
+      <a class="btn btn-success" role="button" href="@routes.HubController.index().url">Go to sample page »</a>
+    </div>
+  </div>
+</div>
+}

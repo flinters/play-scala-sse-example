@@ -1,0 +1,8 @@
+@()
+
+@main("Publisher/Subscriber Sample") {
+  @messageboard(
+    routes.PubSubController.receiveMessage(),
+    routes.PubSubController.sse()
+  )
+}

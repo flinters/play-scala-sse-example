@@ -1,0 +1,78 @@
+@(recieveMessage: Call, sse: Call)
+<link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/messages.css")">
+
+<div class="main container">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="@routes.HomeController.index().url">Play-SSE</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="messages_container">
+    <footer class="footer">
+      <div>
+        <div class="form-group">
+          <label for="name" class="control-label">Name</label>
+          <input type="text" id="name" name="name" class="form-control"/>
+        </div>
+        <div class="form-group">
+          <label for="message" class="control-label">Message</label>
+          <textarea id="message" name="message" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="button" id="submit" class="btn btn-primary">Send</button>
+      </div>
+    </footer>
+
+    <div id="messages" class="messages"></div>
+  </div>
+</div>
+
+<template id="message-template">
+  <div>
+    <span class="message"></span><span class="name"></span>&nbsp;:&nbsp;<span class="timestamp"></span>
+  </div>
+</template>
+
+<script>
+  function submit() {
+    var name = document.getElementById('name');
+    var message = document.getElementById('message');
+    var values = {
+      name: name.value,
+      message: message.value,
+      timestamp: new Date().getTime()
+    };
+
+    if (!values.message) {
+        return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '@recieveMessage.url', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(values));
+
+    message.value = '';
+  }
+
+  function buildTemplate(json) {
+    var t = document.getElementById('message-template');
+    t.content.querySelector('.message').textContent = json.message;
+    t.content.querySelector('.name').textContent = json.name ? ' -- ' + json.name : '';
+    t.content.querySelector('.timestamp').textContent = (new Date(json.timestamp)).toLocaleString();
+
+    return document.importNode(t.content, true);
+  }
+</script>
+
+<script>
+  document.getElementById('submit').addEventListener('click', submit, false);
+
+  var evtSource = new EventSource('@sse.url');
+  evtSource.onmessage = function (e) {
+    var message = buildTemplate(JSON.parse(e.data));
+    document.getElementById('messages').appendChild(message);
+  };
+</script>

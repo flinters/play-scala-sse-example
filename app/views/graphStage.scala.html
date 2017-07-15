@@ -1,0 +1,8 @@
+@()
+
+@main("GraphStage Sample") {
+  @messageboard(
+    routes.GraphStageController.receiveMessage(),
+    routes.GraphStageController.sse()
+  )
+}

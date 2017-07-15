@@ -1,0 +1,8 @@
+@()
+
+@main("Hub Sample") {
+  @messageboard(
+    routes.HubController.receiveMessage(),
+    routes.HubController.sse()
+  )
+}

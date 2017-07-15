@@ -1,0 +1,8 @@
+@()
+
+@main("ActorRef Sample") {
+  @messageboard(
+    routes.ActorRefController.receiveMessage(),
+    routes.ActorRefController.sse()
+  )
+}
