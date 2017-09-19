@@ -1,8 +1,10 @@
-@()
+@import play.filters.csrf.CSRF.Token
+@(token: Token)
 
 @main("ActorRef Sample") {
   @messageboard(
     routes.ActorRefController.receiveMessage(),
-    routes.ActorRefController.sse()
+    routes.ActorRefController.sse(),
+    token
   )
 }

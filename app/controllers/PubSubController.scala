@@ -5,30 +5,45 @@ import javax.inject.{Inject, Singleton}
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.stream.actor.ActorPublisher
 import akka.stream.scaladsl.Source
+import controllers.ActorRefManager.{Register, UnRegister}
 import controllers.PublishersManager._
 import models.Message
 import play.api.http.ContentTypes
 import play.api.libs.EventSource
 import play.api.mvc._
+import play.filters.csrf.{CSRF, CSRFAddToken}
 
 import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class PubSubController @Inject() (system: ActorSystem) extends Controller {
+class PubSubController @Inject() (system: ActorSystem,
+                                  cc: ControllerComponents,
+                                  addToken: CSRFAddToken)
+                                 (implicit executionContext: ExecutionContext)
+  extends AbstractController(cc) {
 
   private[this] val manager = system.actorOf(PublishersManager.props, PublishersManager.name)
 
-  def index = Action {
-    Ok(views.html.pubSub())
-  }
+  def index() = addToken(Action { implicit request =>
+    Ok(views.html.pubSub(CSRF.getToken.get))
+  })
 
-  def receiveMessage = Action(BodyParsers.parse.json[Message]) { request =>
+  def receiveMessage() = Action(parse.json[Message]) { request =>
     manager ! SendMessage(request.body.toString)
     Ok
   }
 
-  def sse = Action {
-    val source = Source.actorPublisher[String](Publisher.props)
+  def sse() = Action {
+    val source =
+      Source
+        .actorPublisher[String](Publisher.props)
+        .watchTermination() { case (publisher, terminate) =>
+          manager ! Register(publisher)
+          terminate.onComplete(_ => manager ! UnRegister(publisher))
+          publisher
+        }
+
     Ok.chunked(source via EventSource.flow).as(ContentTypes.EVENT_STREAM)
   }
 
@@ -36,18 +51,16 @@ class PubSubController @Inject() (system: ActorSystem) extends Controller {
 
 /**
   * @see
-  *      <a href="http://doc.akka.io/docs/akka/2.4.18/scala/stream/stream-integrations.html#Implementing_Reactive_Streams_Publisher_or_Subscriber">
+  *      <a href="http://doc.akka.io/docs/akka/2.5.4/scala/stream/stream-integrations.html#implementing-reactive-streams-publisher-or-subscriber">
   *        Implementing Reactive Streams Publisher or Subscriber
   *      </a>
   */
+@Deprecated
 class Publisher extends ActorPublisher[String] {
   import akka.stream.actor.ActorPublisherMessage._
 
   val MaxBufferSize = 256
   private[this] var buf = Vector.empty[String]
-  private[this] val publishersManager = context.actorSelection("/user/" + PublishersManager.name)
-
-  publishersManager ! Register(self)
 
   def receive = {
     case SendMessage(message) if buf.size == MaxBufferSize =>
@@ -62,7 +75,6 @@ class Publisher extends ActorPublisher[String] {
     case Request(_) =>
       deliverBuf()
     case Cancel =>
-      publishersManager ! UnRegister(self)
       context.stop(self)
   }
 
@@ -86,6 +98,7 @@ class Publisher extends ActorPublisher[String] {
     }
 }
 
+@Deprecated
 object Publisher {
   def props: Props = Props[Publisher]
 }

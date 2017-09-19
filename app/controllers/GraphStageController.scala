@@ -11,24 +11,28 @@ import models.Message
 import play.api.http.ContentTypes
 import play.api.libs.EventSource
 import play.api.mvc._
+import play.filters.csrf.{CSRF, CSRFAddToken}
 
 import scala.collection.mutable
 
 @Singleton
-class GraphStageController @Inject() (system: ActorSystem) extends Controller {
+class GraphStageController @Inject() (system: ActorSystem,
+                                      cc: ControllerComponents,
+                                      addToken: CSRFAddToken)
+  extends AbstractController(cc) {
 
   private[this] val manager = system.actorOf(GraphStageManager.props)
 
-  def index = Action {
-    Ok(views.html.graphStage())
-  }
+  def index() = addToken(Action { implicit request =>
+    Ok(views.html.graphStage(CSRF.getToken.get))
+  })
 
-  def receiveMessage = Action(BodyParsers.parse.json[Message]) { request =>
+  def receiveMessage() = Action(parse.json[Message]) { request =>
     manager ! SendMessage(request.body.toString)
     Ok
   }
 
-  def sse = Action {
+  def sse() = Action {
     val source = Source.fromGraph(new MessageStage(manager))
     Ok.chunked(source via EventSource.flow).as(ContentTypes.EVENT_STREAM)
   }

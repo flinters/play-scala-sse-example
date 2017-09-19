@@ -10,25 +10,30 @@ import models.Message
 import play.api.http.ContentTypes
 import play.api.libs.EventSource
 import play.api.mvc._
+import play.filters.csrf.{CSRF, CSRFAddToken}
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class ActorRefController @Inject() (system: ActorSystem)(implicit val ec: ExecutionContext) extends Controller {
+class ActorRefController @Inject() (system: ActorSystem,
+                                    cc: ControllerComponents,
+                                    addToken: CSRFAddToken)
+                                   (implicit executionContext: ExecutionContext)
+  extends AbstractController(cc) {
 
   private[this] val manager = system.actorOf(ActorRefManager.props)
 
-  def index = Action {
-    Ok(views.html.actorRef())
-  }
+  def index() = addToken(Action { implicit request =>
+    Ok(views.html.actorRef(CSRF.getToken.get))
+  })
 
-  def receiveMessage = Action(BodyParsers.parse.json[Message]) { request =>
+  def receiveMessage() = Action(parse.json[Message]) { request =>
     manager ! SendMessage(request.body.toString)
     Ok
   }
 
-  def sse = Action {
+  def sse() = Action {
     val source  =
       Source
         .actorRef[String](32, OverflowStrategy.dropHead)

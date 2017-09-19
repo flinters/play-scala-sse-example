@@ -1,8 +1,10 @@
-@()
+@import play.filters.csrf.CSRF.Token
+@(token: Token)
 
 @main("GraphStage Sample") {
   @messageboard(
     routes.GraphStageController.receiveMessage(),
-    routes.GraphStageController.sse()
+    routes.GraphStageController.sse(),
+    token
   )
 }

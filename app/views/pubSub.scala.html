@@ -1,8 +1,10 @@
-@()
+@import play.filters.csrf.CSRF.Token
+@(token: Token)
 
 @main("Publisher/Subscriber Sample") {
   @messageboard(
     routes.PubSubController.receiveMessage(),
-    routes.PubSubController.sse()
+    routes.PubSubController.sse(),
+    token
   )
 }

@@ -1,4 +1,5 @@
-@(recieveMessage: Call, sse: Call)
+@import play.filters.csrf.CSRF.Token
+@(recieveMessage: Call, sse: Call, token: Token)
 <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/messages.css")">
 
 <div class="main container">
@@ -50,7 +51,7 @@
     }
 
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '@recieveMessage.url', true);
+    xhr.open('POST', '@recieveMessage.url?@token.name=@token.value' , true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(values));
 

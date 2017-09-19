@@ -1,8 +1,10 @@
-@()
+@import play.filters.csrf.CSRF.Token
+@(token: Token)
 
 @main("Hub Sample") {
   @messageboard(
     routes.HubController.receiveMessage(),
-    routes.HubController.sse()
+    routes.HubController.sse(),
+    token
   )
 }
