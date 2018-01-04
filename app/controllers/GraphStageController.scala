@@ -23,16 +23,16 @@ class GraphStageController @Inject() (system: ActorSystem,
 
   private[this] val manager = system.actorOf(GraphStageManager.props)
 
-  def index() = addToken(Action { implicit request =>
+  def index = addToken(Action { implicit request =>
     Ok(views.html.graphStage(CSRF.getToken.get))
   })
 
-  def receiveMessage() = Action(parse.json[Message]) { request =>
+  def receiveMessage = Action(parse.json[Message]) { request =>
     manager ! SendMessage(request.body.toString)
     Ok
   }
 
-  def sse() = Action {
+  def sse = Action {
     val source = Source.fromGraph(new MessageStage(manager))
     Ok.chunked(source via EventSource.flow).as(ContentTypes.EVENT_STREAM)
   }

@@ -3,23 +3,23 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-GET     /                           controllers.HomeController.index()
+GET     /                           controllers.HomeController.index
 
-GET     /actorref                   controllers.ActorRefController.index()
-POST    /actorref                   controllers.ActorRefController.receiveMessage()
-GET     /actorref/sse               controllers.ActorRefController.sse()
+GET     /actorref                   controllers.ActorRefController.index
+POST    /actorref                   controllers.ActorRefController.receiveMessage
+GET     /actorref/sse               controllers.ActorRefController.sse
 
-GET     /pubsub                     controllers.PubSubController.index()
-POST    /pubsub                     controllers.PubSubController.receiveMessage()
-GET     /pubsub/sse                 controllers.PubSubController.sse()
+GET     /pubsub                     controllers.PubSubController.index
+POST    /pubsub                     controllers.PubSubController.receiveMessage
+GET     /pubsub/sse                 controllers.PubSubController.sse
 
-GET     /graph                      controllers.GraphStageController.index()
-POST    /graph                      controllers.GraphStageController.receiveMessage()
-GET     /graph/sse                  controllers.GraphStageController.sse()
+GET     /graph                      controllers.GraphStageController.index
+POST    /graph                      controllers.GraphStageController.receiveMessage
+GET     /graph/sse                  controllers.GraphStageController.sse
 
-GET     /hub                        controllers.HubController.index()
-POST    /hub                        controllers.HubController.receiveMessage()
-GET     /hub/sse                    controllers.HubController.sse()
+GET     /hub                        controllers.HubController.index
+POST    /hub                        controllers.HubController.receiveMessage
+GET     /hub/sse                    controllers.HubController.sse
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

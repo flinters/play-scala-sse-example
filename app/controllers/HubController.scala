@@ -21,16 +21,16 @@ class HubController @Inject() (cc: ControllerComponents,
       .toMat(BroadcastHub.sink(bufferSize = 256))(Keep.both)
       .run()
 
-  def index() = addToken(Action { implicit request =>
+  def index = addToken(Action { implicit request =>
     Ok(views.html.hub(CSRF.getToken.get))
   })
 
-  def receiveMessage() = Action(parse.json[Message]) { request =>
+  def receiveMessage = Action(parse.json[Message]) { request =>
     Source.single(request.body.toString).runWith(sink)
     Ok
   }
 
-  def sse() = Action {
+  def sse = Action {
     Ok.chunked(source via EventSource.flow).as(ContentTypes.EVENT_STREAM)
   }
 
