@@ -105,17 +105,13 @@ object Publisher {
 
 class PublishersManager extends Actor with ActorLogging {
 
-  private[this] val publishers = mutable.Map.empty[String, ActorRef]
+  private[this] val publishers = mutable.Set.empty[ActorRef]
 
   def receive = {
-    case Register(publisher) =>
-      publishers += publisher.toString -> publisher
-    case UnRegister(publisher) =>
-      publishers -= publisher.toString
-    case event: SendMessage =>
-      publishers.values.foreach(_ ! event)
-    case denied: MessageDenied =>
-      log.error(denied.toString)
+    case Register(publisher)   => publishers += publisher
+    case UnRegister(publisher) => publishers -= publisher
+    case event: SendMessage    => publishers.foreach(_ ! event)
+    case denied: MessageDenied => log.error(denied.toString)
   }
 
 }

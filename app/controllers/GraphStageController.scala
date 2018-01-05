@@ -41,17 +41,17 @@ class GraphStageController @Inject() (system: ActorSystem,
 
 class GraphStageManager extends Actor {
 
-  private[this] val actors = mutable.Map.empty[String, ActorRef]
+  private[this] val actors = mutable.Set.empty[ActorRef]
 
   def receive = {
     case Register(actorRef) =>
       context.watch(actorRef)
-      actors += actorRef.toString() -> actorRef
+      actors += actorRef
     case Terminated(actorRef) =>
       context.unwatch(actorRef)
-      actors -= actorRef.toString()
+      actors -= actorRef
     case message: SendMessage =>
-      actors.values.foreach(_ ! message)
+      actors.foreach(_ ! message)
   }
 
 }

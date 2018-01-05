@@ -50,15 +50,12 @@ class ActorRefController @Inject() (system: ActorSystem,
 
 class ActorRefManager extends Actor {
 
-  private[this] val actors = mutable.Map.empty[String, ActorRef]
+  private[this] val actors = mutable.Set.empty[ActorRef]
 
   def receive = {
-    case Register(actorRef) =>
-      actors += actorRef.toString() -> actorRef
-    case UnRegister(actorRef) =>
-      actors -= actorRef.toString()
-    case SendMessage(message) =>
-      actors.values.foreach(_ ! message)
+    case Register(actorRef)   => actors += actorRef
+    case UnRegister(actorRef) => actors -= actorRef
+    case SendMessage(message) => actors.foreach(_ ! message)
   }
 
 }
